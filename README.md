@@ -3,6 +3,8 @@ SharePointMaid
 
 A repository to access files on SharePoint site using Graph API, SharePoint REST API v2, by Python.
 
+![readme](https://user-images.githubusercontent.com/28250432/102326219-77730300-3fc7-11eb-8a42-8b0b5ae0822a.png)
+
 ## Ref urls
 
 - [SharePoint APIs](https://docs.microsoft.com/ja-jp/sharepoint/dev/sp-add-ins/sharepoint-net-server-csom-jsom-and-rest-api-index)
