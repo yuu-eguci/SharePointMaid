@@ -9,6 +9,9 @@ on:
   schedule:
     - cron: '0 0 */3 * *'
 
+env:
+  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+
 jobs:
   build:
 
@@ -35,3 +38,21 @@ jobs:
         USER_OBJECT_ID: ${{ secrets.USER_OBJECT_ID }}
         TARGET_SITE_ID: ${{ secrets.TARGET_SITE_ID }}
         TARGET_FILE_PATH: ${{ secrets.TARGET_FILE_PATH }}
+
+    # 成功時はこちらのステップが実行されます。
+    - name: Slack Notification on Success
+      if: success()
+      uses: rtCamp/action-slack-notify@v2.0.2
+      env:
+        SLACK_CHANNEL: post_yuu-eguci
+        SLACK_TITLE: SharePointMaid succeeded
+        SLACK_COLOR: good
+
+    # 失敗時はこちらのステップが実行されます。
+    - name: Slack Notification on Failure
+      uses: rtCamp/action-slack-notify@v2.0.2
+      if: failure()
+      env:
+        SLACK_CHANNEL: post_yuu-eguci
+        SLACK_TITLE: SharePointMaid failed
+        SLACK_COLOR: danger
