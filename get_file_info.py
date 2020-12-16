@@ -7,6 +7,7 @@ logger = util.get_my_logger(__name__)
 
 def run(access_token: str) -> dict:
     """SharePoint ファイルの情報を取得します。
+    Doc: https://docs.microsoft.com/ja-jp/graph/api/resources/driveitem?view=graph-rest-1.0
 
     Args:
         access_token (str): Access token

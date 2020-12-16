@@ -7,6 +7,7 @@ logger = util.get_my_logger(__name__)
 
 def run(access_token: str) -> dict:
     """Graph API 用のアクセストークンを取得します。
+    Doc: https://docs.microsoft.com/ja-jp/graph/api/user-get?view=graph-rest-1.0&tabs=http
 
     Args:
         access_token (str): Access token

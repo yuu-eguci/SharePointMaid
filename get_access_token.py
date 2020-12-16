@@ -7,6 +7,7 @@ logger = util.get_my_logger(__name__)
 
 def run() -> str:
     """Graph API 用のアクセストークンを取得します。
+    参考: https://qiita.com/massie_g/items/fe7540161aa4a5f86bf5#アクセストークンの取得
 
     Returns:
         str: Access token
