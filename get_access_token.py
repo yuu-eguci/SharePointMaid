@@ -28,6 +28,7 @@ def run() -> str:
         logger.error('アクセストークンの取得がうまくいかんかった。')
         logger.error(res.status_code)
         raise Exception(res.json())
+    logger.info('アクセストークンの取得成功しました。')
     res_json = res.json()
     access_token = res_json['access_token']
     return access_token
