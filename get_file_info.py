@@ -25,7 +25,7 @@ def run(access_token: str) -> dict:
     }
     res = requests.get(url, headers=headers)
     if res.status_code != 200:
-        logger.error('ファイル情報取得がうまくいかんかった。')
+        logger.error(f'ファイル情報取得がうまくいかんかった。 TARGET_FILE_PATH: {util.TARGET_FILE_PATH}')  # noqa: E501
         logger.error(res.status_code)
         # NOTE: グローバル管理者の許可がないときは code Authorization_RequestDenied が出ます。
         raise Exception(res.json())
