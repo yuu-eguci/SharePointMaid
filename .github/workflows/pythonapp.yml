@@ -1,0 +1,37 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python application
+
+on:
+  push:
+    branches: [ master ]
+  schedule:
+    - cron: '0 */12 * * *'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install pipenv and dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pipenv --upgrade-strategy=only-if-needed
+        pipenv install --dev
+    - name: Run
+      run: |
+        pipenv run python main.py
+      env:
+        TENANT_ID: ${{ secrets.TENANT_ID }}
+        CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        USER_OBJECT_ID: ${{ secrets.USER_OBJECT_ID }}
+        TARGET_SITE_ID: ${{ secrets.TARGET_SITE_ID }}
+        TARGET_FILE_PATH: ${{ secrets.TARGET_FILE_PATH }}
