@@ -1,6 +1,7 @@
 import requests
 import util
 
+
 # このモジュール用のロガーを取得します。
 logger = util.get_my_logger(__name__)
 
@@ -32,9 +33,13 @@ def run(
     if res.status_code != 200:
         logger.error('アップロードがうまくいかんかった。')
         logger.error(res.status_code)
+        # 失敗時のメッセージを送ります。
+        util.send_slack_message(util.SLACK_MESSAGE_FAILURE)
         # NOTE: resourceLocked とかありえます。
         raise Exception(res.json())
     logger.info('アップロード成功しました。')
+    # 成功時のメッセージを送ります。
+    util.send_slack_message(util.SLACK_MESSAGE_SUCCESS)
     res_json = res.json()
     return res_json
 

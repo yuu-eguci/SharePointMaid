@@ -2,6 +2,9 @@ import os
 import logging
 import dotenv
 
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+
 # .env で環境変数を取得する場合に対応します。
 # raise_error_if_not_found: .env が見つからなくてもエラーを起こさない。
 dotenv.load_dotenv(dotenv.find_dotenv(raise_error_if_not_found=False))
@@ -63,6 +66,21 @@ def get_my_logger(logger_name: str) -> logging.Logger:
     return logger
 
 
+def send_slack_message(message: str) -> None:
+
+    slack_client = WebClient(token=SLACK_BOT_TOKEN)
+
+    try:
+        response = slack_client.chat_postMessage(
+            channel='#mailbox_yuu-eguci', text=message)
+        assert response['message']['text'] == message
+    except SlackApiError as e:
+        assert e.response['ok'] is False
+        # str like 'invalid_auth', 'channel_not_found'
+        assert e.response['error']
+        print(f'Got an error: {e.response["error"]}')
+
+
 # Directory (tenant) ID: AAD app overview で取得可能。
 TENANT_ID = get_env('TENANT_ID')
 # Application (client) ID: 同上。
@@ -78,6 +96,12 @@ TARGET_SITE_ID = get_env('TARGET_SITE_ID')
 TARGET_FILE_PATH = get_env('TARGET_FILE_PATH')
 # Graph API の url。
 GRAPH_API_URL = 'https://graph.microsoft.com/v1.0'
+# python-slack-sdk 用のアクセストークン。
+SLACK_BOT_TOKEN = get_env('SLACK_BOT_TOKEN')
+# 成功時の Slack メッセージ。
+SLACK_MESSAGE_SUCCESS = get_env('SLACK_MESSAGE_SUCCESS')
+# 失敗時の Slack メッセージ。
+SLACK_MESSAGE_FAILURE = get_env('SLACK_MESSAGE_FAILURE')
 
 if __name__ == '__main__':
     logger = get_my_logger(__name__)
@@ -88,3 +112,6 @@ if __name__ == '__main__':
     logger.debug(repr(TARGET_SITE_ID))
     logger.debug(repr(TARGET_FILE_PATH))
     logger.debug(repr(GRAPH_API_URL))
+    logger.debug(repr(SLACK_BOT_TOKEN))
+    logger.debug(repr(SLACK_MESSAGE_SUCCESS))
+    logger.debug(repr(SLACK_MESSAGE_FAILURE))
