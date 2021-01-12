@@ -39,6 +39,9 @@ jobs:
         USER_OBJECT_ID: ${{ secrets.USER_OBJECT_ID }}
         TARGET_SITE_ID: ${{ secrets.TARGET_SITE_ID }}
         TARGET_FILE_PATH: ${{ secrets.TARGET_FILE_PATH }}
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        SLACK_MESSAGE_SUCCESS: ${{ secrets.SLACK_MESSAGE_SUCCESS }}
+        SLACK_MESSAGE_FAILURE: ${{ secrets.SLACK_MESSAGE_FAILURE }}
 
     # 成功時はこちらのステップが実行されます。
     - name: Slack Notification on Success
