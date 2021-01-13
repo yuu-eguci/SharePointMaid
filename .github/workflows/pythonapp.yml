@@ -40,6 +40,7 @@ jobs:
         TARGET_SITE_ID: ${{ secrets.TARGET_SITE_ID }}
         TARGET_FILE_PATH: ${{ secrets.TARGET_FILE_PATH }}
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        SLACK_MESSAGE_CHANNEL: ${{ secrets.SLACK_MESSAGE_CHANNEL }}
         SLACK_MESSAGE_SUCCESS: ${{ secrets.SLACK_MESSAGE_SUCCESS }}
         SLACK_MESSAGE_FAILURE: ${{ secrets.SLACK_MESSAGE_FAILURE }}
 

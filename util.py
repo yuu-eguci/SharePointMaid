@@ -66,19 +66,35 @@ def get_my_logger(logger_name: str) -> logging.Logger:
     return logger
 
 
+# このモジュール用のロガーを取得します。
+logger = get_my_logger(__name__)
+
+
 def send_slack_message(message: str) -> None:
+    """slack_sdk を用いたメッセージ送信を行います。
+    Document: https://github.com/slackapi/python-slack-sdk/blob/main/tutorial/01-creating-the-slack-app.md
+
+    Args:
+        message (str): 送信したいメッセージ。
+    """
 
     slack_client = WebClient(token=SLACK_BOT_TOKEN)
 
     try:
+        # NOTE: unfurl_links は時折鬱陶しいと思っている「リンクの展開機能」です。不要です。 False.
         response = slack_client.chat_postMessage(
-            channel='#mailbox_yuu-eguci', text=message)
-        assert response['message']['text'] == message
+            channel=SLACK_MESSAGE_CHANNEL, text=message, unfurl_links=False)
+        # 返却値の確認は行いません。
+        # NOTE: Slack api のドキュメントにあるコードなので追加していましたが排除します。
+        #       リンクの含まれるメッセージを送信すると、返却値が勝手に変更されるため絶対一致しないからです。
+        #       - リンクの前後に <, > がつく
+        #       - & -> &amp; エスケープが起こる
+        # assert response['message']['text'] == message
     except SlackApiError as e:
         assert e.response['ok'] is False
         # str like 'invalid_auth', 'channel_not_found'
         assert e.response['error']
-        print(f'Got an error: {e.response["error"]}')
+        logger.error(f'Got an error: {e.response["error"]}')
 
 
 # Directory (tenant) ID: AAD app overview で取得可能。
@@ -98,13 +114,14 @@ TARGET_FILE_PATH = get_env('TARGET_FILE_PATH')
 GRAPH_API_URL = 'https://graph.microsoft.com/v1.0'
 # python-slack-sdk 用のアクセストークン。
 SLACK_BOT_TOKEN = get_env('SLACK_BOT_TOKEN')
+# Slack メッセージを送信する channel。
+SLACK_MESSAGE_CHANNEL = get_env('SLACK_MESSAGE_CHANNEL')
 # 成功時の Slack メッセージ。
 SLACK_MESSAGE_SUCCESS = get_env('SLACK_MESSAGE_SUCCESS')
 # 失敗時の Slack メッセージ。
 SLACK_MESSAGE_FAILURE = get_env('SLACK_MESSAGE_FAILURE')
 
 if __name__ == '__main__':
-    logger = get_my_logger(__name__)
     logger.critical(repr(TENANT_ID))
     logger.error(repr(CLIENT_ID))
     logger.warning(repr(CLIENT_SECRET))
@@ -113,5 +130,6 @@ if __name__ == '__main__':
     logger.debug(repr(TARGET_FILE_PATH))
     logger.debug(repr(GRAPH_API_URL))
     logger.debug(repr(SLACK_BOT_TOKEN))
+    logger.debug(repr(SLACK_MESSAGE_CHANNEL))
     logger.debug(repr(SLACK_MESSAGE_SUCCESS))
     logger.debug(repr(SLACK_MESSAGE_FAILURE))
