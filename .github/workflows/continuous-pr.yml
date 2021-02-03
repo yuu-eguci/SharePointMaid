@@ -52,5 +52,6 @@ jobs:
       uses: technote-space/workflow-conclusion-action@v1
 
     - name: Echo WORKFLOW_CONCLUSION
+      if: always()
       run: |
         echo ${{ env.WORKFLOW_CONCLUSION }}
