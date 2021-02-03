@@ -28,19 +28,22 @@ jobs:
         hub --version
 
     # NOTE: GITHUB_USER, GITHUB_TOKEN はデフォルトで存在します。
-    # - name: Create Pull Request
-    #   env:
-    #     GITHUB_USER: ${{ secrets.GITHUB_USER }}
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   run: |
-    #     hub pull-request --base master --file .github/PULL_REQUEST_TEMPLATE_FOR_WORKFLOW.md --labels FOO --draft
+    - name: Create Pull Request
+      env:
+        GITHUB_USER: ${{ secrets.GITHUB_USER }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        hub pull-request --base master --file .github/PULL_REQUEST_TEMPLATE_FOR_WORKFLOW.md --labels FOO --draft
 
     - name: Run optional commands
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh --version
-        gh pr create --base master --title "⚗️ sample" --draft --label FOO
+        gh pr ready https://github.com/yuu-eguci/SharePointMaid/pull/dev
+      # NOTE: Official である gh では template が使えない。
+      #       使えない。
+      # gh pr create --base master --title "⚗️ sample" --body "FOO BAR" --draft --label FOO
 
     - name: Notify to Slack on always
       if: always()
