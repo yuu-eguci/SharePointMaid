@@ -35,6 +35,10 @@ jobs:
       run: |
         hub pull-request --base master --file .github/PULL_REQUEST_TEMPLATE_FOR_WORKFLOW.md --labels FOO --draft
 
+    - name: Run optional commands
+      run: |
+        gh --version
+
     - name: Notify to Slack on always
       if: always()
       uses: rtCamp/action-slack-notify@v2
