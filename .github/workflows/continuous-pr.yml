@@ -21,6 +21,8 @@ jobs:
 
     # NOTE: a step cannot have both the `uses` and `run` keys
     #       ひとつの step に uses と run は使えない。
+    # NOTE: geertvdc/setup-hub を利用するサンプルがよく見られるが、それは必要ありません。
+    #       setup-hub しなくとも hub コマンドは使えます。
     - name: Display hub version
       run: |
         hub --version
@@ -39,7 +41,7 @@ jobs:
         SLACK_CHANNEL: mailbox_yuu-eguci
         SLACK_COLOR: '#3278BD'
         SLACK_ICON: https://ca.slack-edge.com/TBHT9GQ5Q-UBHUQ6DEW-03036dfcdb7f-512
-        SLACK_MESSAGE: ${{ job.status }}
+        SLACK_MESSAGE: ${{ env.WORKFLOW_CONCLUSION }}
         SLACK_TITLE: ContinuousPullRequestResult
         SLACK_USERNAME: ContinuousPullRequest
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
