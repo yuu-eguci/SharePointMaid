@@ -1,0 +1,48 @@
+name: Continuous PR
+
+on:
+  # NOTE: 手動実行のことです。
+  workflow_dispatch:
+  schedule:
+    # At 11:00 on day-of-month 10 and on Friday.
+    - cron: '0 11 10 * 5'
+
+jobs:
+  pr:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout dev branch
+      uses: actions/checkout@v2
+      with:
+        ref: dev
+
+    # NOTE: a step cannot have both the `uses` and `run` keys
+    #       ひとつの step に uses と run は使えない。
+    # NOTE: geertvdc/setup-hub を利用するサンプルがよく見られるが、それは必要ありません。
+    #       setup-hub しなくとも hub コマンドは使えます。
+    - name: Display hub version
+      run: |
+        hub --version
+
+    # NOTE: GITHUB_USER, GITHUB_TOKEN はデフォルトで存在します。
+    - name: Create Pull Request
+      env:
+        GITHUB_USER: ${{ secrets.GITHUB_USER }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        hub pull-request --base master --file .github/PULL_REQUEST_TEMPLATE_FOR_WORKFLOW.md --labels FOO
+
+    - name: Notify to Slack on always
+      if: always()
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_CHANNEL: mailbox_yuu-eguci
+        SLACK_COLOR: '#3278BD'
+        SLACK_ICON: https://ca.slack-edge.com/TBHT9GQ5Q-UBHUQ6DEW-03036dfcdb7f-512
+        SLACK_MESSAGE: ${{ job.status }}
+        SLACK_TITLE: Continuous Pull Request job status
+        SLACK_USERNAME: ContinuousPullRequest
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
