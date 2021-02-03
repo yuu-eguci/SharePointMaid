@@ -20,7 +20,9 @@ jobs:
         ref: dev
 
     - name: Setup hub
-      uses: geertvdc/setup-hub@v1.0.0
+      uses: geertvdc/setup-hub@master
+      run: |
+        hub --version
 
     - name: Create Pull Request
       env:
