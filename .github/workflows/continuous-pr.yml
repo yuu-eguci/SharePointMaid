@@ -27,6 +27,7 @@ jobs:
       run: |
         hub --version
 
+    # NOTE: GITHUB_USER, GITHUB_TOKEN はデフォルトで存在します。
     - name: Create Pull Request
       env:
         GITHUB_USER: ${{ secrets.GITHUB_USER }}
@@ -41,7 +42,15 @@ jobs:
         SLACK_CHANNEL: mailbox_yuu-eguci
         SLACK_COLOR: '#3278BD'
         SLACK_ICON: https://ca.slack-edge.com/TBHT9GQ5Q-UBHUQ6DEW-03036dfcdb7f-512
-        SLACK_MESSAGE: ${{ env.WORKFLOW_CONCLUSION }}
+        SLACK_MESSAGE: ${{ job.status }}
         SLACK_TITLE: ContinuousPullRequestResult
         SLACK_USERNAME: ContinuousPullRequest
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    - name: Notify to Slack using WORKFLOW_CONCLUSION
+      if: always()
+      uses: technote-space/workflow-conclusion-action@v1
+
+    - name: Echo WORKFLOW_CONCLUSION
+      run: |
+        echo ${{ env.WORKFLOW_CONCLUSION }}
