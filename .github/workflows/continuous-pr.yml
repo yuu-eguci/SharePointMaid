@@ -33,14 +33,14 @@ jobs:
         GITHUB_USER: ${{ secrets.GITHUB_USER }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        hub pull-request --base master --file .github/PULL_REQUEST_TEMPLATE_FOR_WORKFLOW.md --labels FOO --draft
+        pr_url=$(hub pull-request --base master --file .github/PULL_REQUEST_TEMPLATE_FOR_WORKFLOW.md --labels FOO --draft)
 
     - name: Run optional commands
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh --version
-        gh pr ready https://github.com/yuu-eguci/SharePointMaid/pull/dev
+        gh pr ready ${pr_url}
       # NOTE: Official である gh では template が使えない。
       #       使えない。
       # gh pr create --base master --title "⚗️ sample" --body "FOO BAR" --draft --label FOO
