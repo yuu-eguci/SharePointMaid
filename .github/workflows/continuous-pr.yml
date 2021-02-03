@@ -21,6 +21,10 @@ jobs:
 
     - name: Setup hub
       uses: geertvdc/setup-hub@master
+
+    # NOTE: a step cannot have both the `uses` and `run` keys
+    #       ひとつの step に uses と run は使えない。
+    - name: Display hub version
       run: |
         hub --version
 
