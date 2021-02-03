@@ -3,11 +3,6 @@ name: Continuous PR
 on:
   # NOTE: 手動実行のことです。
   workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log level'
-        required: true
-        default: 'warning'
   schedule:
     # At 11:00 on day-of-month 10 and on Friday.
     - cron: '0 11 10 * 5'
