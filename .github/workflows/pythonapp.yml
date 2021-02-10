@@ -4,8 +4,9 @@
 name: Python application
 
 on:
-  push:
-    branches: [ master ]
+  # NOTE: continuous-pr 実験のため一時的に塞ぎます。
+  # push:
+  #   branches: [ master ]
   schedule:
     # Ref: https://crontab.guru/
     - cron: '0 3 * * 3'
