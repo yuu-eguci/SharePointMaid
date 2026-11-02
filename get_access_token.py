@@ -1,4 +1,5 @@
 import requests
+
 import util
 
 # このモジュール用のロガーを取得します。
@@ -13,8 +14,7 @@ def run() -> str:
         str: Access token
     """
 
-    url = ('https://login.microsoftonline.com'
-           f'/{util.TENANT_ID}/oauth2/v2.0/token')
+    url = f'https://login.microsoftonline.com/{util.TENANT_ID}/oauth2/v2.0/token'
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
     }

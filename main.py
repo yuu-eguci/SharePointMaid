@@ -1,8 +1,13 @@
 import requests
+
+import copy_xlsx_sheet
 import get_access_token
 import get_file_info
-import copy_xlsx_sheet
 import put_file
+import util
+
+# 必要な環境変数がそろっているか先に確認します。
+util.check_settings()
 
 # アクセストークン。
 access_token = get_access_token.run()

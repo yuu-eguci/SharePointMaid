@@ -1,0 +1,38 @@
+[project]
+name = "sharepointmaid"
+version = "0.1.0"
+description = "A repository to access files on SharePoint site using Graph API, by Python."
+readme = "README.md"
+requires-python = ">=3.15"
+dependencies = [
+    "openpyxl>=3.1.5",
+    "python-dotenv>=1.2.4",
+    "requests>=2.34.2",
+    "slack-sdk>=3.46.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = ["--strict-markers", "--strict-config", "-p", "no:cacheprovider"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py315"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "B", "SIM", "RUF"]
+# 行の長さは formatter に任せます。日本語コメントは折り返しません。
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "single"

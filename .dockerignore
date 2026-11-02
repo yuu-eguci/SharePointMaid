@@ -1,0 +1,8 @@
+.git
+.venv
+.env
+.pytest_cache
+.ruff_cache
+__pycache__
+docs/iona-kest.md
+*.xlsx
