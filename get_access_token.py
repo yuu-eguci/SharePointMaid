@@ -24,7 +24,9 @@ def run() -> str:
         'client_secret': util.CLIENT_SECRET,
         'grant_type': 'client_credentials',
     }
-    res = requests.post(url, headers=headers, data=payload)
+    res = requests.post(
+        url, headers=headers, data=payload, timeout=util.REQUEST_TIMEOUT_SECONDS
+    )
     if res.status_code != 200:
         logger.error('アクセストークンの取得がうまくいかんかった。')
         logger.error(res.status_code)
@@ -36,4 +38,5 @@ def run() -> str:
 
 
 if __name__ == '__main__':
-    logger.debug(run())
+    # NOTE: アクセストークンそのものはログに出しません。
+    logger.debug(f'アクセストークンの長さ: {len(run())}')

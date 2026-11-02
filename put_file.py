@@ -27,7 +27,9 @@ def run(access_token: str, target_file_item_id: str, upload_file_path: str) -> d
     }
     with open(upload_file_path, 'rb') as f:
         binary = f.read()
-    res = requests.put(url, headers=headers, data=binary)
+    res = requests.put(
+        url, headers=headers, data=binary, timeout=util.REQUEST_TIMEOUT_SECONDS
+    )
     if res.status_code != 200:
         logger.error('アップロードがうまくいかんかった。')
         logger.error(res.status_code)

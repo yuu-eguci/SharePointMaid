@@ -24,7 +24,7 @@ def run(access_token: str) -> dict:
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
-    res = requests.get(url, headers=headers)
+    res = requests.get(url, headers=headers, timeout=util.REQUEST_TIMEOUT_SECONDS)
     if res.status_code != 200:
         logger.error(
             f'ファイル情報取得がうまくいかんかった。 TARGET_FILE_PATH: {util.TARGET_FILE_PATH}'

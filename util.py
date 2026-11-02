@@ -48,6 +48,9 @@ def get_my_logger(logger_name: str) -> logging.Logger:
 
     # ルートロガーを作成します。ロガーはモジュールごとに分けるもの。
     logger = logging.getLogger(logger_name)
+    # 作成済みならそのまま返します。ハンドラを重ねるとログが二重に出ます。
+    if logger.handlers:
+        return logger
     # ルートロガーのログレベルは DEBUG。
     logger.setLevel(logging.DEBUG)
     # コンソールへ出力するハンドラを作成。
@@ -92,14 +95,14 @@ def send_slack_message(message: str) -> None:
         #       - & -> &amp; エスケープが起こる
         # assert response['message']['text'] == message
     except SlackApiError as e:
-        assert e.response['ok'] is False
         # str like 'invalid_auth', 'channel_not_found'
-        assert e.response['error']
-        logger.error(f'Got an error: {e.response["error"]}')
+        logger.error(f'Got an error: {e.response.get("error")}')
 
 
 # Graph API の url。
 GRAPH_API_URL = 'https://graph.microsoft.com/v1.0'
+# requests のタイムアウト秒数。応答がないまま止まり続けないようにします。
+REQUEST_TIMEOUT_SECONDS = 60
 
 # 環境変数から読む設定です。 util.TENANT_ID のように参照したときに読み込みます。
 # import しただけでは環境変数を要求しないので、テストから import できます。
@@ -126,6 +129,8 @@ _ENV_SETTINGS = (
     # 失敗時の Slack メッセージ。
     'SLACK_MESSAGE_FAILURE',
 )
+# ログに値を出さない設定です。
+_SECRET_SETTINGS = ('CLIENT_SECRET', 'SLACK_BOT_TOKEN')
 
 
 def __getattr__(name: str) -> str:
@@ -146,7 +151,26 @@ def check_settings() -> None:
         raise KeyError(f'Missing environment variables: {", ".join(missing)}')
 
 
+def masked_settings() -> dict[str, str]:
+    """確認用に設定値を返します。秘密情報はマスクします。
+
+    Returns:
+        dict[str, str]: 環境変数名と表示用の値。
+    """
+
+    masked = {}
+    for name in _ENV_SETTINGS:
+        value = os.environ.get(name)
+        if not value:
+            masked[name] = '(未設定)'
+        elif name in _SECRET_SETTINGS:
+            masked[name] = '***'
+        else:
+            masked[name] = value
+    return masked
+
+
 if __name__ == '__main__':
     logger.debug(repr(GRAPH_API_URL))
-    for name in _ENV_SETTINGS:
-        logger.debug(f'{name}: {get_env(name)!r}')
+    for name, value in masked_settings().items():
+        logger.debug(f'{name}: {value}')

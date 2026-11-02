@@ -50,6 +50,10 @@ SLACK_MESSAGE_FAILURE=***
 docker compose run --rm app
 ```
 
+- ダウンロードしたファイルは一時ディレクトリで処理して、終わったら消します。
+- Graph API とダウンロードの通信は 60 秒でタイムアウトします。
+- `python util.py` で設定を確認できます。シークレットとトークンはマスクして表示します。
+
 GitHub Actions の `pythonapp.yml` は同じ処理を週 1 回動かすワークフローです。いまは手動で無効にしてあります。
 
 ## Microsoft Entra ID アプリの準備
