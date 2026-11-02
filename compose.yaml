@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    image: sharepointmaid:local
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - .:/app

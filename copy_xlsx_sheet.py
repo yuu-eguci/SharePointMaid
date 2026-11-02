@@ -1,6 +1,8 @@
-import datetime
 import calendar
+import datetime
+
 import openpyxl
+
 import util
 
 # このモジュール用のロガーを取得します。
@@ -35,15 +37,20 @@ def run(workbook_path: str) -> None:
     workbook.save(workbook_path)
 
 
-def get_next_monday() -> datetime.date:
+def get_next_monday(today: datetime.date | None = None) -> datetime.date:
     """次の月曜を datetime.date オブジェクトで取得します。
+    today が月曜ならその日を返します。
+
+    Args:
+        today (datetime.date | None): 基準日。省略すると今日。
 
     Returns:
         datetime.date: 次の月曜(Ex: datetime.date(2020, 12, 21))
     """
 
     # Ex: datetime.date(2020, 12, 16)
-    today = datetime.date.today()
+    if today is None:
+        today = datetime.date.today()
 
     # 今日からの次の月曜への日数を取得します。
     # NOTE: 次の月曜(0)を取得するロジックです。
@@ -88,6 +95,5 @@ if __name__ == '__main__':
     logger.info(repr(next_monday))
     dow = get_nth_dow(next_monday.year, next_monday.month, next_monday.day)
     logger.info(dow)
-    logger.info(f'{repr(next_monday)} は {next_monday.month}月第{dow[0]}月曜日')
+    logger.info(f'{next_monday!r} は {next_monday.month}月第{dow[0]}月曜日')
     run('./sample.xlsx')
-

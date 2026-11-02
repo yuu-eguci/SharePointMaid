@@ -1,4 +1,5 @@
 import requests
+
 import util
 
 # このモジュール用のロガーを取得します。
@@ -36,5 +37,6 @@ def run(access_token: str) -> dict:
 
 if __name__ == '__main__':
     import get_access_token
+
     access_token = get_access_token.run()
     logger.debug(run(access_token))

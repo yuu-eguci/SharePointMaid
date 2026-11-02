@@ -1,7 +1,7 @@
-import os
 import logging
-import dotenv
+import os
 
+import dotenv
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
@@ -56,8 +56,8 @@ def get_my_logger(logger_name: str) -> logging.Logger:
     handler.setLevel(logging.DEBUG)
     # ログフォーマットをハンドラに設定します。
     formatter = logging.Formatter(
-        # NOTE: 改行は逆に見づらいので E501 を無視します。
-        '%(asctime)s - %(levelname)s - %(filename)s - %(name)s - %(funcName)s - %(message)s')  # noqa: E501
+        '%(asctime)s - %(levelname)s - %(filename)s - %(name)s - %(funcName)s - %(message)s'
+    )
     handler.setFormatter(formatter)
     # ハンドラをロガーへセットします。
     logger.addHandler(handler)
@@ -78,12 +78,13 @@ def send_slack_message(message: str) -> None:
         message (str): 送信したいメッセージ。
     """
 
-    slack_client = WebClient(token=SLACK_BOT_TOKEN)
+    slack_client = WebClient(token=get_env('SLACK_BOT_TOKEN'))
 
     try:
         # NOTE: unfurl_links は時折鬱陶しいと思っている「リンクの展開機能」です。不要です。 False.
-        response = slack_client.chat_postMessage(
-            channel=SLACK_MESSAGE_CHANNEL, text=message, unfurl_links=False)
+        slack_client.chat_postMessage(
+            channel=get_env('SLACK_MESSAGE_CHANNEL'), text=message, unfurl_links=False
+        )
         # 返却値の確認は行いません。
         # NOTE: Slack api のドキュメントにあるコードなので追加していましたが排除します。
         #       リンクの含まれるメッセージを送信すると、返却値が勝手に変更されるため絶対一致しないからです。
@@ -97,39 +98,55 @@ def send_slack_message(message: str) -> None:
         logger.error(f'Got an error: {e.response["error"]}')
 
 
-# Directory (tenant) ID: AAD app overview で取得可能。
-TENANT_ID = get_env('TENANT_ID')
-# Application (client) ID: 同上。
-CLIENT_ID = get_env('CLIENT_ID')
-# Certificates & secrets で取得可能。
-CLIENT_SECRET = get_env('CLIENT_SECRET')
-# Object ID: AAD Users で取得可能。
-USER_OBJECT_ID = get_env('USER_OBJECT_ID')
-# アクセスする SharePoint site の site-id: Graph Explorer で site を検索することで取得可能。
-TARGET_SITE_ID = get_env('TARGET_SITE_ID')
-# Maid に取得させる SharePoint site 内ファイルのパス。
-# SharePoint サイトにおける Shared%20Documents より下のパスを書く。例: FILE-STORAGE/sample.xlsx
-TARGET_FILE_PATH = get_env('TARGET_FILE_PATH')
 # Graph API の url。
 GRAPH_API_URL = 'https://graph.microsoft.com/v1.0'
-# python-slack-sdk 用のアクセストークン。
-SLACK_BOT_TOKEN = get_env('SLACK_BOT_TOKEN')
-# Slack メッセージを送信する channel。
-SLACK_MESSAGE_CHANNEL = get_env('SLACK_MESSAGE_CHANNEL')
-# 成功時の Slack メッセージ。
-SLACK_MESSAGE_SUCCESS = get_env('SLACK_MESSAGE_SUCCESS')
-# 失敗時の Slack メッセージ。
-SLACK_MESSAGE_FAILURE = get_env('SLACK_MESSAGE_FAILURE')
+
+# 環境変数から読む設定です。 util.TENANT_ID のように参照したときに読み込みます。
+# import しただけでは環境変数を要求しないので、テストから import できます。
+_ENV_SETTINGS = (
+    # Directory (tenant) ID: Entra ID アプリの Overview で取得可能。
+    'TENANT_ID',
+    # Application (client) ID: 同上。
+    'CLIENT_ID',
+    # Certificates & secrets で取得可能。
+    'CLIENT_SECRET',
+    # Object ID: Entra ID の Users で取得可能。
+    'USER_OBJECT_ID',
+    # アクセスする SharePoint site の site-id: Graph Explorer で site を検索することで取得可能。
+    'TARGET_SITE_ID',
+    # Maid に取得させる SharePoint site 内ファイルのパス。
+    # SharePoint サイトにおける Shared%20Documents より下のパスを書く。例: FILE-STORAGE/sample.xlsx
+    'TARGET_FILE_PATH',
+    # python-slack-sdk 用のアクセストークン。
+    'SLACK_BOT_TOKEN',
+    # Slack メッセージを送信する channel。
+    'SLACK_MESSAGE_CHANNEL',
+    # 成功時の Slack メッセージ。
+    'SLACK_MESSAGE_SUCCESS',
+    # 失敗時の Slack メッセージ。
+    'SLACK_MESSAGE_FAILURE',
+)
+
+
+def __getattr__(name: str) -> str:
+    if name in _ENV_SETTINGS:
+        return get_env(name)
+    raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+
+
+def check_settings() -> None:
+    """必要な環境変数がそろっているか、処理を始める前にまとめて確認します。
+
+    Raises:
+        KeyError: 未設定か空の環境変数がある。
+    """
+
+    missing = [name for name in _ENV_SETTINGS if not os.environ.get(name)]
+    if missing:
+        raise KeyError(f'Missing environment variables: {", ".join(missing)}')
+
 
 if __name__ == '__main__':
-    logger.critical(repr(TENANT_ID))
-    logger.error(repr(CLIENT_ID))
-    logger.warning(repr(CLIENT_SECRET))
-    logger.info(repr(USER_OBJECT_ID))
-    logger.debug(repr(TARGET_SITE_ID))
-    logger.debug(repr(TARGET_FILE_PATH))
     logger.debug(repr(GRAPH_API_URL))
-    logger.debug(repr(SLACK_BOT_TOKEN))
-    logger.debug(repr(SLACK_MESSAGE_CHANNEL))
-    logger.debug(repr(SLACK_MESSAGE_SUCCESS))
-    logger.debug(repr(SLACK_MESSAGE_FAILURE))
+    for name in _ENV_SETTINGS:
+        logger.debug(f'{name}: {get_env(name)!r}')

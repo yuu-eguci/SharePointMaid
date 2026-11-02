@@ -1,4 +1,5 @@
 import requests
+
 import util
 
 # このモジュール用のロガーを取得します。
@@ -19,13 +20,15 @@ def run(access_token: str) -> dict:
         dict: File info
     """
 
-    url = f'{util.GRAPH_API_URL}/sites/{util.TARGET_SITE_ID}/drive/root:/{util.TARGET_FILE_PATH}'  # noqa: E501
+    url = f'{util.GRAPH_API_URL}/sites/{util.TARGET_SITE_ID}/drive/root:/{util.TARGET_FILE_PATH}'
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
     res = requests.get(url, headers=headers)
     if res.status_code != 200:
-        logger.error(f'ファイル情報取得がうまくいかんかった。 TARGET_FILE_PATH: {util.TARGET_FILE_PATH}')  # noqa: E501
+        logger.error(
+            f'ファイル情報取得がうまくいかんかった。 TARGET_FILE_PATH: {util.TARGET_FILE_PATH}'
+        )
         logger.error(res.status_code)
         # NOTE: グローバル管理者の許可がないときは code Authorization_RequestDenied が出ます。
         raise Exception(res.json())
@@ -36,6 +39,7 @@ def run(access_token: str) -> dict:
 
 if __name__ == '__main__':
     import get_access_token
+
     access_token = get_access_token.run()
     file_info = run(access_token)
     logger.debug(file_info['id'])

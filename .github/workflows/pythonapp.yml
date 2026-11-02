@@ -1,62 +1,58 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+# SharePoint のファイルを実際に更新する本番用ワークフローです。
+# GitHub 上では手動で無効にしてあります。
 
 name: Python application
 
 on:
-  # NOTE: continuous-pr 実験のため一時的に塞ぎます。
-  # push:
-  #   branches: [ master ]
   schedule:
     # Ref: https://crontab.guru/
     - cron: '0 3 * * 3'
+
+permissions:
+  contents: read
 
 env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.8
-    - name: Install pipenv and dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pipenv --upgrade-strategy=only-if-needed
-        pipenv install --dev
-    - name: Run
-      run: |
-        pipenv run python main.py
-      env:
-        TENANT_ID: ${{ secrets.TENANT_ID }}
-        CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-        USER_OBJECT_ID: ${{ secrets.USER_OBJECT_ID }}
-        TARGET_SITE_ID: ${{ secrets.TARGET_SITE_ID }}
-        TARGET_FILE_PATH: ${{ secrets.TARGET_FILE_PATH }}
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        SLACK_MESSAGE_CHANNEL: ${{ secrets.SLACK_MESSAGE_CHANNEL }}
-        SLACK_MESSAGE_SUCCESS: ${{ secrets.SLACK_MESSAGE_SUCCESS }}
-        SLACK_MESSAGE_FAILURE: ${{ secrets.SLACK_MESSAGE_FAILURE }}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - name: Install dependencies
+        run: uv sync --locked --no-dev
+      - name: Run
+        run: uv run --no-dev python main.py
+        env:
+          TENANT_ID: ${{ secrets.TENANT_ID }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          USER_OBJECT_ID: ${{ secrets.USER_OBJECT_ID }}
+          TARGET_SITE_ID: ${{ secrets.TARGET_SITE_ID }}
+          TARGET_FILE_PATH: ${{ secrets.TARGET_FILE_PATH }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_MESSAGE_CHANNEL: ${{ secrets.SLACK_MESSAGE_CHANNEL }}
+          SLACK_MESSAGE_SUCCESS: ${{ secrets.SLACK_MESSAGE_SUCCESS }}
+          SLACK_MESSAGE_FAILURE: ${{ secrets.SLACK_MESSAGE_FAILURE }}
 
-    # 成功時はこちらのステップが実行されます。
-    - name: Slack Notification on Success
-      if: success()
-      uses: rtCamp/action-slack-notify@v2.0.2
-      env:
-        SLACK_TITLE: SharePointMaid succeeded
-        SLACK_COLOR: good
+      # 成功時はこちらのステップが実行されます。
+      - name: Slack Notification on Success
+        if: success()
+        uses: rtCamp/action-slack-notify@06cc13f74fa8d4d2296c09455d91e9453e4025f4 # v2.4.1
+        env:
+          SLACK_TITLE: SharePointMaid succeeded
+          SLACK_COLOR: good
 
-    # 失敗時はこちらのステップが実行されます。
-    - name: Slack Notification on Failure
-      uses: rtCamp/action-slack-notify@v2.0.2
-      if: failure()
-      env:
-        SLACK_TITLE: SharePointMaid failed
-        SLACK_COLOR: danger
+      # 失敗時はこちらのステップが実行されます。
+      - name: Slack Notification on Failure
+        if: failure()
+        uses: rtCamp/action-slack-notify@06cc13f74fa8d4d2296c09455d91e9453e4025f4 # v2.4.1
+        env:
+          SLACK_TITLE: SharePointMaid failed
+          SLACK_COLOR: danger

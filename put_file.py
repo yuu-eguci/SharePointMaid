@@ -1,15 +1,12 @@
 import requests
-import util
 
+import util
 
 # このモジュール用のロガーを取得します。
 logger = util.get_my_logger(__name__)
 
 
-def run(
-        access_token: str,
-        target_file_item_id: str,
-        upload_file_path: str) -> dict:
+def run(access_token: str, target_file_item_id: str, upload_file_path: str) -> dict:
     """SharePoint の既存ファイルを指定して更新します。
 
     Args:
@@ -24,11 +21,12 @@ def run(
         dict: [description]
     """
 
-    url = f'{util.GRAPH_API_URL}/sites/{util.TARGET_SITE_ID}/drive/items/{target_file_item_id}/content'  # noqa: E501
+    url = f'{util.GRAPH_API_URL}/sites/{util.TARGET_SITE_ID}/drive/items/{target_file_item_id}/content'
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
-    binary = open(upload_file_path, 'rb').read()
+    with open(upload_file_path, 'rb') as f:
+        binary = f.read()
     res = requests.put(url, headers=headers, data=binary)
     if res.status_code != 200:
         logger.error('アップロードがうまくいかんかった。')
@@ -47,6 +45,7 @@ def run(
 if __name__ == '__main__':
     import get_access_token
     import get_file_info
+
     access_token = get_access_token.run()
     file_info = get_file_info.run(access_token)
     logger.debug(file_info['id'])
