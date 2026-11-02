@@ -80,3 +80,47 @@ def test_check_settings_reports_all_missing(monkeypatch):
     monkeypatch.setenv('SLACK_BOT_TOKEN', '')
     with pytest.raises(KeyError, match='CLIENT_SECRET, SLACK_BOT_TOKEN'):
         util.check_settings()
+
+
+def test_masked_settings_hides_secrets(settings):
+    masked = util.masked_settings()
+
+    assert masked['TENANT_ID'] == 'dummy-tenant_id'
+    assert masked['CLIENT_SECRET'] == '***'
+    assert masked['SLACK_BOT_TOKEN'] == '***'
+    assert 'dummy-client_secret' not in repr(masked)
+
+
+def test_masked_settings_shows_missing(monkeypatch, settings):
+    monkeypatch.delenv('CLIENT_SECRET')
+    monkeypatch.setenv('TENANT_ID', '')
+
+    masked = util.masked_settings()
+
+    assert masked['CLIENT_SECRET'] == '(未設定)'
+    assert masked['TENANT_ID'] == '(未設定)'
+
+
+def test_get_my_logger_does_not_duplicate_handlers():
+    first = util.get_my_logger('test_util_dup_logger')
+    second = util.get_my_logger('test_util_dup_logger')
+
+    assert first is second
+    assert len(second.handlers) == 1
+
+
+def test_send_slack_message_logs_api_error(monkeypatch, settings):
+    class FakeWebClient:
+        def __init__(self, token):
+            pass
+
+        def chat_postMessage(self, **kwargs):
+            raise util.SlackApiError('error', {'ok': False, 'error': 'invalid_auth'})
+
+    monkeypatch.setattr(util, 'WebClient', FakeWebClient)
+    errors = []
+    monkeypatch.setattr(util.logger, 'error', errors.append)
+
+    util.send_slack_message('hello')
+
+    assert errors == ['Got an error: invalid_auth']

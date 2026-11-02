@@ -7,7 +7,7 @@ logger = util.get_my_logger(__name__)
 
 
 def run(access_token: str) -> dict:
-    """Graph API 用のアクセストークンを取得します。
+    """ユーザ情報を取得します。
     Doc: https://docs.microsoft.com/ja-jp/graph/api/user-get?view=graph-rest-1.0&tabs=http
 
     Args:
@@ -24,7 +24,7 @@ def run(access_token: str) -> dict:
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
-    res = requests.get(url, headers=headers)
+    res = requests.get(url, headers=headers, timeout=util.REQUEST_TIMEOUT_SECONDS)
     if res.status_code != 200:
         logger.error('ユーザ情報の取得がうまくいかんかった。')
         logger.error(res.status_code)
